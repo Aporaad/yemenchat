@@ -1,0 +1,41 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#DC143C;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#B92029;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="whiteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#F5F5F5;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- Outer thick black border -->
+    <circle cx="256" cy="256" r="248" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"/>
+
+    <!-- Main speech bubble - Red section (top-right) -->
+    <path d="M 130 100 Q 380 80 420 160 Q 450 240 420 340 Q 390 420 280 440 L 180 500 L 250 440 Q 140 450 100 380 Q 60 300 80 180 Q 100 110 130 100 Z"
+          fill="url(#redGrad)" stroke="none"/>
+
+    <!-- Secondary bubble - White section (bottom-left) -->
+    <path d="M 80 280 Q 40 330 50 400 Q 60 460 130 480 L 80 530 L 130 480 Q 200 495 260 460 Q 300 430 300 360 Q 290 300 230 280 Q 140 260 80 280 Z"
+          fill="url(#whiteGrad)" stroke="none" opacity="0.98"/>
+
+    <!-- Dark black stroke outline for depth and professional look -->
+    <path d="M 130 100 Q 380 80 420 160 Q 450 240 420 340 Q 390 420 280 440 L 180 500 L 250 440 Q 140 450 100 380 Q 60 300 80 180 Q 100 110 130 100 Z"
+          fill="none" stroke="#000000" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <path d="M 80 280 Q 40 330 50 400 Q 60 460 130 480 L 80 530 L 130 480 Q 200 495 260 460 Q 300 430 300 360 Q 290 300 230 280 Q 140 260 80 280 Z"
+          fill="none" stroke="#000000" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Trending/chat arrow element in black -->
+    <g transform="translate(200, 200)">
+        <!-- Arrow curve -->
+        <path d="M 30 80 Q 60 40 120 50 Q 150 55 170 90"
+              fill="none" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Arrow head -->
+        <path d="M 170 90 L 185 50 L 160 75 Z"
+              fill="#000000" stroke="none"/>
+    </g>
+</svg>

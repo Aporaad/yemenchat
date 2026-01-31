@@ -1,0 +1,554 @@
+// =============================================================================
+// YemenChat - Main Entry Point
+// =============================================================================
+// Application entry point with Firebase initialization, providers, and routing.
+// =============================================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
+
+// Controllers
+import 'controllers/auth_controller.dart';
+import 'controllers/chat_controller.dart';
+import 'controllers/contact_controller.dart';
+import 'controllers/profile_controller.dart';
+import 'controllers/settings_controller.dart';
+
+// Services
+import 'services/notification_service.dart';
+
+// Screens
+import 'screens/splash/splash_screen.dart';
+import 'screens/auth/welcome_screen.dart';
+import 'screens/auth/signin_screen.dart';
+import 'screens/auth/signup_screen.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/chat/chat_screen.dart';
+import 'screens/contacts/contact_screen.dart';
+import 'screens/contacts/contact_info_screen.dart';
+import 'screens/favorites/favorites_screen.dart';
+import 'screens/profile/profile_screen.dart';
+import 'screens/settings/settings_screen.dart';
+
+// Utils
+import 'utils/constants.dart';
+
+/// Global notification service instance
+final notificationService = NotificationService();
+
+/// Main entry point
+void main() async {
+  // Ensure Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Set system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
+
+  // Initialize Firebase with options
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Set up FCM background message handler
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  // Initialize notification service
+  await notificationService.initialize();
+
+  // Run the app
+  runApp(const YemenChatApp());
+}
+
+/// Main application widget
+class YemenChatApp extends StatelessWidget {
+  const YemenChatApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        // Auth controller - manages user authentication state
+        ChangeNotifierProvider(create: (_) => AuthController()),
+
+        // Settings controller - manages app settings
+        ChangeNotifierProvider(create: (_) => SettingsController()),
+
+        // Chat controller - manages chats and messages
+        ChangeNotifierProvider(create: (_) => ChatController()),
+
+        // Contact controller - manages contacts and favorites
+        ChangeNotifierProvider(create: (_) => ContactController()),
+
+        // Profile controller - manages user profile
+        ChangeNotifierProvider(create: (_) => ProfileController()),
+      ],
+      child: Consumer<SettingsController>(
+        builder: (context, settings, _) {
+          return MaterialApp(
+            // App info
+            title: kAppName,
+            debugShowCheckedModeBanner: false,
+
+            // Theme configuration - Default to Light Mode
+            theme: _buildLightTheme(),
+            darkTheme: _buildDarkTheme(),
+            themeMode: ThemeMode.light, // Default to Light Mode
+            // Initial route
+            initialRoute: kRouteSplash,
+
+            // Route generation
+            onGenerateRoute: _generateRoute,
+          );
+        },
+      ),
+    );
+  }
+
+  /// Build enhanced Material 3 Light theme
+  ThemeData _buildLightTheme() {
+    // Define color scheme from seed color
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: kPrimaryColor,
+      brightness: Brightness.light,
+    );
+
+    return ThemeData(
+      // Material 3
+      useMaterial3: true,
+      brightness: Brightness.light,
+
+      // Color scheme
+      colorScheme: colorScheme,
+      primaryColor: kPrimaryColor,
+      scaffoldBackgroundColor: const Color(0xFFFAFAFA),
+
+      // Typography
+      textTheme: TextTheme(
+        // Display styles
+        displayLarge: const TextStyle(
+          fontSize: 57,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.25,
+        ),
+        displayMedium: const TextStyle(
+          fontSize: 45,
+          fontWeight: FontWeight.w400,
+        ),
+        displaySmall: const TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.w400,
+        ),
+
+        // Headline styles
+        headlineLarge: const TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w400,
+        ),
+        headlineMedium: const TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w400,
+        ),
+        headlineSmall: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w400,
+        ),
+
+        // Title styles
+        titleLarge: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0,
+        ),
+        titleMedium: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.15,
+        ),
+        titleSmall: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.1,
+        ),
+
+        // Body styles
+        bodyLarge: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.5,
+        ),
+        bodyMedium: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.25,
+        ),
+        bodySmall: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.4,
+        ),
+
+        // Label styles
+        labelLarge: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.1,
+        ),
+        labelMedium: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.5,
+        ),
+        labelSmall: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.5,
+        ),
+      ),
+
+      // AppBar theme
+      appBarTheme: AppBarTheme(
+        backgroundColor: kPrimaryColor,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 2,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+          letterSpacing: 0.15,
+        ),
+        iconTheme: const IconThemeData(color: Colors.white, size: 24),
+        actionsIconTheme: const IconThemeData(color: Colors.white, size: 24),
+      ),
+
+      // Card theme
+      cardTheme: CardTheme(
+        elevation: 1,
+        shadowColor: Colors.black.withOpacity(0.1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusMD),
+        ),
+        clipBehavior: Clip.antiAlias,
+      ),
+
+      // Navigation bar theme
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        elevation: 3,
+        height: 72,
+        indicatorColor: kPrimaryColor.withOpacity(0.15),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const TextStyle(
+              color: kPrimaryColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              letterSpacing: 0.5,
+            );
+          }
+          return TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 12,
+            letterSpacing: 0.5,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: kPrimaryColor, size: 24);
+          }
+          return IconThemeData(color: Colors.grey.shade600, size: 24);
+        }),
+      ),
+
+      // Button themes
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: kPrimaryColor,
+          foregroundColor: Colors.white,
+          elevation: 2,
+          shadowColor: kPrimaryColor.withOpacity(0.3),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kRadiusMD),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: kPrimaryColor,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kRadiusSM),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: kPrimaryColor,
+          side: const BorderSide(color: kPrimaryColor, width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kRadiusMD),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+
+      // Input decoration theme
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+
+        // Borders
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kRadiusMD),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kRadiusMD),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kRadiusMD),
+          borderSide: const BorderSide(color: kPrimaryColor, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kRadiusMD),
+          borderSide: const BorderSide(color: kErrorColor, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kRadiusMD),
+          borderSide: const BorderSide(color: kErrorColor, width: 2),
+        ),
+
+        // Labels & hints
+        labelStyle: TextStyle(
+          fontSize: 14,
+          color: Colors.grey.shade700,
+          letterSpacing: 0.15,
+        ),
+        floatingLabelStyle: const TextStyle(
+          fontSize: 14,
+          color: kPrimaryColor,
+          letterSpacing: 0.15,
+        ),
+        hintStyle: TextStyle(
+          fontSize: 14,
+          color: Colors.grey.shade500,
+          letterSpacing: 0.25,
+        ),
+      ),
+
+      // List tile theme
+      listTileTheme: ListTileThemeData(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusSM),
+        ),
+      ),
+
+      // Divider theme
+      dividerTheme: DividerThemeData(
+        color: Colors.grey.shade200,
+        thickness: 1,
+        space: 1,
+      ),
+
+      // Dialog theme
+      dialogTheme: DialogTheme(
+        backgroundColor: Colors.white,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusLG),
+        ),
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+          letterSpacing: 0.15,
+        ),
+        contentTextStyle: const TextStyle(
+          fontSize: 14,
+          color: Colors.black87,
+          letterSpacing: 0.25,
+        ),
+      ),
+
+      // SnackBar theme
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF323232),
+        contentTextStyle: const TextStyle(fontSize: 14, letterSpacing: 0.25),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusSM),
+        ),
+        elevation: 6,
+      ),
+
+      // Bottom sheet theme
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: Colors.white,
+        elevation: 8,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(kRadiusLG)),
+        ),
+        clipBehavior: Clip.antiAlias,
+      ),
+
+      // Floating action button theme
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: kPrimaryColor,
+        foregroundColor: Colors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+
+      // Chip theme
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.grey.shade100,
+        selectedColor: kPrimaryColor.withOpacity(0.2),
+        labelStyle: const TextStyle(fontSize: 13, letterSpacing: 0.25),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusSM),
+        ),
+      ),
+    );
+  }
+
+  /// Build dark theme
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      primaryColor: kPrimaryColor,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: kPrimaryColor,
+        brightness: Brightness.dark,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF1E1E1E),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: const Color(0xFF1E1E1E),
+        indicatorColor: kPrimaryColor.withValues(alpha: 0.3),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const TextStyle(
+              color: kPrimaryLightColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            );
+          }
+          return const TextStyle(color: Colors.grey, fontSize: 12);
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: kPrimaryLightColor);
+          }
+          return const IconThemeData(color: Colors.grey);
+        }),
+      ),
+      cardColor: const Color(0xFF1E1E1E),
+      dividerColor: Colors.grey.shade800,
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF2E2E2E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusSM),
+        ),
+      ),
+      dialogTheme: DialogTheme(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kRadiusLG),
+        ),
+      ),
+    );
+  }
+
+  /// Generate routes
+  Route<dynamic>? _generateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      // Auth routes
+      case kRouteSplash:
+        return _buildRoute(const SplashScreen(), settings);
+      case kRouteWelcome:
+        return _buildRoute(const WelcomeScreen(), settings);
+      case kRouteSignIn:
+        return _buildRoute(const SignInScreen(), settings);
+      case kRouteSignUp:
+        return _buildRoute(const SignUpScreen(), settings);
+
+      // Main routes
+      case kRouteHome:
+        return _buildRoute(const HomeScreen(), settings);
+      case kRouteContacts:
+        return _buildRoute(const ContactScreen(), settings);
+      case kRouteFavorites:
+        return _buildRoute(const FavoritesScreen(), settings);
+      case kRouteChat:
+        return _buildRoute(const ChatScreen(), settings);
+      case kRouteContactInfo:
+        return _buildRoute(const ContactInfoScreen(), settings);
+
+      // Profile routes
+      case kRouteProfile:
+        return _buildRoute(const ProfileScreen(), settings);
+      case kRouteSettings:
+        return _buildRoute(const SettingsScreen(), settings);
+
+      // Default fallback
+      default:
+        return _buildRoute(const SplashScreen(), settings);
+    }
+  }
+
+  /// Build material page route
+  MaterialPageRoute _buildRoute(Widget page, RouteSettings settings) {
+    return MaterialPageRoute(builder: (_) => page, settings: settings);
+  }
+}

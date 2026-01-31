@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "55093432147",
+    "project_id": "yemenchat-18235",
+    "storage_bucket": "yemenchat-18235.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:55093432147:android:df15914fa27a5445391ba6",
+        "android_client_info": {
+          "package_name": "com.example.yemenchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWosxBjmVMLmkJ65XjkPqLSTXYi6jA-1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
