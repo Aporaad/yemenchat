@@ -19,8 +19,7 @@ const String kAppVersion = '1.0.0';
 // =============================================================================
 // CLOUDINARY CONFIGURATION
 // =============================================================================
-
-/// Cloudinary cloud name
+// cloud name
 const String kCloudinaryCloudName = 'dpcmgnvyx';
 
 /// Cloudinary unsigned upload preset

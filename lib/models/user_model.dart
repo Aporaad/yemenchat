@@ -1,27 +1,11 @@
-// =============================================================================
-// YemenChat - User Model
-// =============================================================================
-// This model represents a user profile in the application.
-// It maps to the 'users' collection in Firestore.
-// =============================================================================
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// User model class representing a registered user in the app
+// User model class representing a registered user in the app
 class UserModel {
-  // Unique user ID from Firebase Auth
   final String id;
-
-  // User's full name
   final String fullName;
-
-  // Unique username for the user
   final String username;
-
-  // User's phone number
   final String phone;
-
-  // User's email address
   final String email;
 
   // URL to user's profile photo (nullable)
