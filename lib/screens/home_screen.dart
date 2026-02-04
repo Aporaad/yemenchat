@@ -1,22 +1,16 @@
-// =============================================================================
-// YemenChat - Home Screen
-// =============================================================================
-// Main home screen with chat list, bottom navigation, and drawer.
-// =============================================================================
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../controllers/auth_controller.dart';
-import '../../controllers/chat_controller.dart';
-import '../../controllers/settings_controller.dart';
-import '../../models/chat_model.dart';
-import '../../utils/constants.dart';
-import '../../utils/helpers.dart';
-import '../../widgets/user_card.dart';
-import '../../widgets/input_field.dart';
-import '../contacts/contact_screen.dart';
-import '../favorites/favorites_screen.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/chat_controller.dart';
+import '../controllers/settings_controller.dart';
+import '../models/chat_model.dart';
+import '../utils/constants.dart';
+import '../utils/helpers.dart';
+import '../widgets/user_card.dart';
+import '../widgets/input_field.dart';
+import 'contact_screen.dart';
+import 'favorites_screen.dart';
 
 /// Main home screen with bottom navigation
 class HomeScreen extends StatefulWidget {

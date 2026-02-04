@@ -1,17 +1,11 @@
-// =============================================================================
-// YemenChat - Sign In Screen
-// =============================================================================
-// User login screen with email/username authentication.
-// =============================================================================
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../controllers/auth_controller.dart';
-import '../../utils/constants.dart';
-import '../../utils/validators.dart';
-import '../../utils/helpers.dart';
-import '../../widgets/input_field.dart';
-import '../../widgets/custom_button.dart';
+import '../controllers/auth_controller.dart';
+import '../utils/constants.dart';
+import '../utils/validators.dart';
+import '../utils/helpers.dart';
+import '../widgets/input_field.dart';
+import '../widgets/custom_button.dart';
 
 /// Sign in screen for existing users
 class SignInScreen extends StatefulWidget {

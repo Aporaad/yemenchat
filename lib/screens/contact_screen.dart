@@ -6,12 +6,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../controllers/auth_controller.dart';
-import '../../controllers/chat_controller.dart';
-import '../../controllers/contact_controller.dart';
-import '../../utils/constants.dart';
-import '../../widgets/user_card.dart';
-import '../../widgets/input_field.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/chat_controller.dart';
+import '../controllers/contact_controller.dart';
+import '../utils/constants.dart';
+import '../widgets/user_card.dart';
+import '../widgets/input_field.dart';
 
 /// Screen displaying all contacts
 class ContactScreen extends StatefulWidget {

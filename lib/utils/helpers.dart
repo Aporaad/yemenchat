@@ -16,7 +16,6 @@ class Helpers {
   // ===========================================================================
   // DATE & TIME FORMATTING
   // ===========================================================================
-
   /// Format DateTime for chat list display
   /// Shows "Today", "Yesterday", or date
   static String formatChatDate(DateTime dateTime) {
@@ -59,7 +58,6 @@ class Helpers {
   // ===========================================================================
   // NAVIGATION HELPERS
   // ===========================================================================
-
   /// Navigate to a named route
   static void navigateTo(
     BuildContext context,
@@ -91,7 +89,6 @@ class Helpers {
   // ===========================================================================
   // UI HELPERS
   // ===========================================================================
-
   /// Show a snackbar message
   static void showSnackBar(
     BuildContext context,
@@ -196,7 +193,6 @@ class Helpers {
   // ===========================================================================
   // STRING HELPERS
   // ===========================================================================
-
   /// Truncate text with ellipsis
   static String truncate(String text, int maxLength) {
     if (text.length <= maxLength) return text;
@@ -221,7 +217,6 @@ class Helpers {
   // ===========================================================================
   // VALIDATION HELPERS
   // ===========================================================================
-
   /// Check if string is valid email
   static bool isValidEmail(String email) {
     return RegExp(

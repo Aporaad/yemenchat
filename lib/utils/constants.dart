@@ -81,7 +81,6 @@ const Color kOfflineColor = Color(0xFF9E9E9E);
 // =============================================================================
 // TEXT STYLES
 // =============================================================================
-
 /// Heading text style
 const TextStyle kHeadingStyle = TextStyle(
   fontSize: 24,
@@ -120,7 +119,6 @@ const TextStyle kTimeStyle = TextStyle(fontSize: 12, color: Colors.black45);
 // =============================================================================
 // SPACING
 // =============================================================================
-
 /// Extra small spacing
 const double kSpaceXS = 4.0;
 
@@ -137,7 +135,7 @@ const double kSpaceLG = 24.0;
 const double kSpaceXL = 32.0;
 
 /// Default padding
-const EdgeInsets kDefaultPadding = EdgeInsets.all(16.0);
+const EdgeInsets kDefaultPadding = EdgeInsets.all(26.0);
 
 /// Horizontal padding
 const EdgeInsets kHorizontalPadding = EdgeInsets.symmetric(horizontal: 16.0);
@@ -153,7 +151,7 @@ const EdgeInsets kVerticalPadding = EdgeInsets.symmetric(vertical: 16.0);
 const double kRadiusSM = 8.0;
 
 /// Medium border radius
-const double kRadiusMD = 12.0;
+const double kRadiusMD = 15.0;
 
 /// Large border radius
 const double kRadiusLG = 16.0;
@@ -167,7 +165,6 @@ const double kRadiusFull = 100.0;
 // =============================================================================
 // FIREBASE COLLECTION NAMES
 // =============================================================================
-
 /// Users collection
 const String kUsersCollection = 'users';
 
@@ -189,7 +186,6 @@ const String kSecurityLogsCollection = 'security_logs';
 // =============================================================================
 // ROUTE NAMES
 // =============================================================================
-
 /// Splash route
 const String kRouteSplash = '/';
 
@@ -226,9 +222,9 @@ const String kRouteSettings = '/settings';
 // =============================================================================
 // INPUT DECORATION
 // =============================================================================
-
 /// Default input decoration for text fields
 InputDecoration kInputDecoration({
+  //###########
   required String label,
   String? hint,
   IconData? prefixIcon,
@@ -261,7 +257,6 @@ InputDecoration kInputDecoration({
 // =============================================================================
 // ANIMATION DURATIONS
 // =============================================================================
-
 /// Fast animation duration
 const Duration kAnimationFast = Duration(milliseconds: 200);
 

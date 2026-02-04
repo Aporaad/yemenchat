@@ -40,22 +40,27 @@ class ChatBubble extends StatelessWidget {
         onLongPress: onLongPress,
         child: Container(
           margin: EdgeInsets.only(
-            top: 4,
-            bottom: 4,
-            left: isSent ? 64 : 8,
-            right: isSent ? 8 : 64,
+            top: 5,
+            bottom: 5,
+            left: isSent ? 64 : 1,
+            right: isSent ? 1 : 64,
           ),
           padding:
               message.hasImage
                   ? const EdgeInsets.all(4)
-                  : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  : EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                    right: isSent ? 8 : 48,
+                    left: isSent ? 38 : 8,
+                  ),
           decoration: BoxDecoration(
             color: isSent ? kSentBubbleColor : kReceivedBubbleColor,
             borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(16),
-              topRight: const Radius.circular(16),
-              bottomLeft: Radius.circular(isSent ? 16 : 4),
-              bottomRight: Radius.circular(isSent ? 4 : 16),
+              topLeft: Radius.circular(isSent ? 20 : 0),
+              topRight: Radius.circular(isSent ? 0 : 20),
+              bottomLeft: Radius.circular(isSent ? 16 : 40),
+              bottomRight: Radius.circular(isSent ? 40 : 16),
             ),
             boxShadow: [
               BoxShadow(
@@ -77,7 +82,10 @@ class ChatBubble extends StatelessWidget {
                   padding:
                       message.hasImage
                           ? const EdgeInsets.fromLTRB(8, 4, 8, 0)
-                          : EdgeInsets.zero,
+                          : EdgeInsets.only(
+                            right: isSent ? 8 : 5,
+                            left: isSent ? 5 : 8,
+                          ),
                   child: Text(
                     message.text,
                     style: const TextStyle(fontSize: 15, color: Colors.black87),
@@ -135,7 +143,7 @@ class ChatBubble extends StatelessWidget {
       padding:
           message.hasImage
               ? const EdgeInsets.only(right: 8, bottom: 4)
-              : EdgeInsets.zero,
+              : EdgeInsets.only(right: isSent ? 10 : 28, left: isSent ? 18 : 1),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

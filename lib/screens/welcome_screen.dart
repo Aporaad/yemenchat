@@ -5,8 +5,8 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
-import '../../utils/constants.dart';
-import '../../widgets/custom_button.dart';
+import '../utils/constants.dart';
+import '../widgets/custom_button.dart';
 
 /// Welcome screen displayed to unauthenticated users
 class WelcomeScreen extends StatelessWidget {

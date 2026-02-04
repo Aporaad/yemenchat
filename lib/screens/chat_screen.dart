@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
-import '../../controllers/auth_controller.dart';
-import '../../controllers/chat_controller.dart';
-import '../../models/user_model.dart';
-import '../../models/message_model.dart';
-import '../../utils/constants.dart';
-import '../../utils/helpers.dart';
-import '../../widgets/chat_bubble.dart';
-import '../../widgets/image_message.dart';
-import '../../widgets/input_field.dart';
-import '../../services/pdf_export_service.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/chat_controller.dart';
+import '../models/user_model.dart';
+import '../models/message_model.dart';
+import '../utils/constants.dart';
+import '../utils/helpers.dart';
+import '../widgets/chat_bubble.dart';
+import '../widgets/image_message.dart';
+import '../widgets/input_field.dart';
+import '../services/pdf_export_service.dart';
 
 /// Chat screen for messaging
 class ChatScreen extends StatefulWidget {

@@ -34,10 +34,11 @@ class AuthService {
   /// Stream of auth state changes
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+
+
   // ===========================================================================
   // SIGN UP
   // ===========================================================================
-
   /// Sign up a new user with email and password
   /// Also creates user profile in Firestore
   Future<UserModel?> signUp({
@@ -86,7 +87,6 @@ class AuthService {
   // ===========================================================================
   // SIGN IN
   // ===========================================================================
-
   /// Sign in with email and password
   Future<UserModel?> signInWithEmail({
     required String email,
@@ -141,10 +141,11 @@ class AuthService {
     }
   }
 
+
+
   // ===========================================================================
   // SIGN OUT
-  // ===========================================================================
-
+  // ===========================================================================-
   /// Sign out the current user
   Future<void> signOut() async {
     final userId = currentUserId;
@@ -154,10 +155,10 @@ class AuthService {
     await _auth.signOut();
   }
 
+
   // ===========================================================================
   // DUPLICATE CHECKING
   // ===========================================================================
-
   /// Check if email already exists
   Future<bool> isEmailTaken(String email) async {
     final querySnapshot =
@@ -166,7 +167,7 @@ class AuthService {
             .where('email', isEqualTo: email.toLowerCase())
             .limit(1)
             .get();
-    return querySnapshot.docs.isNotEmpty;
+    return querySnapshot.docs.isNotEmpty; 
   }
 
   /// Check if username already exists
@@ -180,10 +181,12 @@ class AuthService {
     return querySnapshot.docs.isNotEmpty;
   }
 
+
+
+
   // ===========================================================================
   // PASSWORD MANAGEMENT
   // ===========================================================================
-
   /// Change password for current user
   Future<void> changePassword({
     required String currentPassword,
@@ -217,10 +220,11 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
+
+
   // ===========================================================================
   // USER PROFILE
   // ===========================================================================
-
   /// Get user profile from Firestore
   Future<UserModel?> getUserProfile(String userId) async {
     final doc = await _firestore.collection(kUsersCollection).doc(userId).get();
@@ -252,10 +256,11 @@ class AuthService {
     });
   }
 
+
+
   // ===========================================================================
   // ACCOUNT MANAGEMENT
   // ===========================================================================
-
   /// Delete user account
   Future<void> deleteAccount(String password) async {
     try {
@@ -284,10 +289,11 @@ class AuthService {
     }
   }
 
+
+
   // ===========================================================================
   // SECURITY LOGGING
   // ===========================================================================
-
   /// Log a security action
   Future<void> _logSecurityAction(String userId, SecurityAction action) async {
     final log = SecurityLogModel(
@@ -318,10 +324,11 @@ class AuthService {
         .toList();
   }
 
+
+
   // ===========================================================================
   // ERROR HANDLING
   // ===========================================================================
-
   /// Handle Firebase Auth errors and return user-friendly messages
   String _handleAuthError(FirebaseAuthException e) {
     switch (e.code) {

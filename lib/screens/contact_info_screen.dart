@@ -7,13 +7,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../controllers/auth_controller.dart';
-import '../../controllers/chat_controller.dart';
-import '../../controllers/contact_controller.dart';
-import '../../models/user_model.dart';
-import '../../services/firestore_service.dart';
-import '../../utils/constants.dart';
-import '../../utils/helpers.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/chat_controller.dart';
+import '../controllers/contact_controller.dart';
+import '../models/user_model.dart';
+import '../services/firestore_service.dart';
+import '../utils/constants.dart';
+import '../utils/helpers.dart';
 
 /// Contact info screen showing user details
 class ContactInfoScreen extends StatefulWidget {

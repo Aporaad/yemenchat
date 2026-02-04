@@ -7,13 +7,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../controllers/auth_controller.dart';
-import '../../controllers/profile_controller.dart';
-import '../../utils/constants.dart';
-import '../../utils/validators.dart';
-import '../../utils/helpers.dart';
-import '../../widgets/input_field.dart';
-import '../../widgets/custom_button.dart';
+import '../controllers/auth_controller.dart';
+import '../controllers/profile_controller.dart';
+import '../utils/constants.dart';
+import '../utils/validators.dart';
+import '../utils/helpers.dart';
+import '../widgets/input_field.dart';
+import '../widgets/custom_button.dart';
 
 /// User profile screen
 class ProfileScreen extends StatefulWidget {

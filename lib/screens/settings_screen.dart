@@ -6,8 +6,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../controllers/settings_controller.dart';
-import '../../utils/constants.dart';
+import '../controllers/settings_controller.dart';
+import '../utils/constants.dart';
 
 /// Settings screen
 class SettingsScreen extends StatelessWidget {

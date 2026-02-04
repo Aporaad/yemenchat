@@ -1,9 +1,3 @@
-// =============================================================================
-// YemenChat - Main Entry Point
-// =============================================================================
-// Application entry point with Firebase initialization, providers, and routing.
-// =============================================================================
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -22,17 +16,17 @@ import 'controllers/settings_controller.dart';
 import 'services/notification_service.dart';
 
 // Screens
-import 'screens/splash/splash_screen.dart';
-import 'screens/auth/welcome_screen.dart';
-import 'screens/auth/signin_screen.dart';
-import 'screens/auth/signup_screen.dart';
-import 'screens/home/home_screen.dart';
-import 'screens/chat/chat_screen.dart';
-import 'screens/contacts/contact_screen.dart';
-import 'screens/contacts/contact_info_screen.dart';
-import 'screens/favorites/favorites_screen.dart';
-import 'screens/profile/profile_screen.dart';
-import 'screens/settings/settings_screen.dart';
+import 'screens/splash_screen.dart';
+import 'screens/welcome_screen.dart';
+import 'screens/signin_screen.dart';
+import 'screens/signup_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/chat_screen.dart';
+import 'screens/contact_screen.dart';
+import 'screens/contact_info_screen.dart';
+import 'screens/favorites_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/settings_screen.dart';
 
 // Utils
 import 'utils/constants.dart';
@@ -40,7 +34,6 @@ import 'utils/constants.dart';
 /// Global notification service instance
 final notificationService = NotificationService();
 
-/// Main entry point
 void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
@@ -105,7 +98,9 @@ class YemenChatApp extends StatelessWidget {
             // Theme configuration - Default to Light Mode
             theme: _buildLightTheme(),
             darkTheme: _buildDarkTheme(),
-            themeMode: ThemeMode.light, // Default to Light Mode
+            themeMode:
+                ThemeMode
+                    .light, // Default to Light Mode settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             // Initial route
             initialRoute: kRouteSplash,
 

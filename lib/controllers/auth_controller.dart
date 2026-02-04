@@ -21,10 +21,11 @@ class AuthController extends ChangeNotifier {
   String? _errorMessage;
   bool _isInitialized = false;
 
+
+
   // ===========================================================================
   // GETTERS
   // ===========================================================================
-
   /// Current logged in user
   UserModel? get currentUser => _currentUser;
 
@@ -46,7 +47,6 @@ class AuthController extends ChangeNotifier {
   // ===========================================================================
   // INITIALIZATION
   // ===========================================================================
-
   /// Initialize auth controller and check login state
   Future<void> initialize() async {
     _setLoading(true);
@@ -55,7 +55,7 @@ class AuthController extends ChangeNotifier {
       // Check if user is already logged in
       if (_authService.isLoggedIn) {
         _currentUser = await _authService.getCurrentUserProfile();
-
+      
         // Update FCM token
         if (_currentUser != null) {
           final token = await _notificationService.getToken();
@@ -72,10 +72,11 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+
+
   // ===========================================================================
   // SIGN UP
   // ===========================================================================
-
   /// Sign up a new user
   Future<bool> signUp({
     required String fullName,
@@ -122,10 +123,11 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+
+
   // ===========================================================================
   // SIGN IN
   // ===========================================================================
-
   /// Sign in with email or username
   Future<bool> signIn({
     required String emailOrUsername,
@@ -165,10 +167,11 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+
+
   // ===========================================================================
   // SIGN OUT
   // ===========================================================================
-
   /// Sign out current user
   Future<void> signOut() async {
     _setLoading(true);
@@ -183,10 +186,12 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+
+
+
   // ===========================================================================
   // PASSWORD MANAGEMENT
   // ===========================================================================
-
   /// Change password
   Future<bool> changePassword({
     required String currentPassword,
@@ -225,10 +230,12 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+
+
+
   // ===========================================================================
   // PROFILE UPDATE
   // ===========================================================================
-
   /// Update user profile
   Future<bool> updateProfile(UserModel updatedUser) async {
     _clearError();
@@ -254,10 +261,12 @@ class AuthController extends ChangeNotifier {
     return updateProfile(updatedUser);
   }
 
+
+
+
   // ===========================================================================
   // ACCOUNT DELETION
   // ===========================================================================
-
   /// Delete user account
   Future<bool> deleteAccount(String password) async {
     _clearError();
@@ -275,10 +284,13 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+
+
+
+
   // ===========================================================================
   // HELPER METHODS
   // ===========================================================================
-
   /// Set loading state
   void _setLoading(bool value) {
     _isLoading = value;

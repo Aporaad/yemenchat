@@ -6,8 +6,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../controllers/auth_controller.dart';
-import '../../utils/constants.dart';
+import '../controllers/auth_controller.dart';
+import '../utils/constants.dart';
 
 /// Splash screen with animated logo
 class SplashScreen extends StatefulWidget {

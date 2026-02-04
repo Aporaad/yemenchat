@@ -1,13 +1,6 @@
-// =============================================================================
-// YemenChat - Chat Model
-// =============================================================================
-// This model represents a chat conversation between two users.
-// It maps to the 'chats' collection in Firestore.
-// =============================================================================
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Chat model class representing a conversation between users
+
 class ChatModel {
   // Unique chat ID
   final String id;
