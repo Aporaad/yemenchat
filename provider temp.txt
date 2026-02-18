@@ -1,0 +1,43 @@
+
+ايش فائده final notificationService = NotificationService();
+
+
+شرح    MultiProvider بالكامل 
+شرح Consumer
+ايش معنى onGenerateRoute في MaterialApp
+
+شرح داله   Route<dynamic>? _generateRoute(RouteSettings settings) {
+
+وداله  MaterialPageRoute _buildRoute(Widget page, RouteSettings settings) {
+
+
+=================================================================
+setState()
+
+
+ترتيب الـproviders مهم. لأن الـprovider اللاحق يمكنه الاعتماد على السابق.
+
+notifyListeners  تحديث لحاله عنصر محدد فقط
+
+
+
+ما معنى context.read<AuthController>() ؟
+
+هذه تعني:
+
+"أعطني نسخة AuthController الموجودة في الشجرة، بدون الاستماع للتغييرات."
+
+الفرق بين:
+الدالة	ماذا تفعل
+read<T>()	يحصل على الكائن مرة واحدة فقط , لا يسجل listener.
+watch<T>()	يحصل عليه ويعيد build عند تغيّره
+select<T>()	يستمع لجزء محدد فقط
+-----------------------------------------
+---
+3️⃣ افصل الـBusiness Logic عن UI
+
+ChangeNotifier يجب أن يحتوي logic فقط، لا Widgets.
+
+4️⃣ لا تستخدم watch داخل build لعمليات ثقيلة
+
+إذا كانت إعادة البناء مكلفة استخدم Selector.
