@@ -1,9 +1,3 @@
-// =============================================================================
-// YemenChat - Firestore Service
-// =============================================================================
-// Handles all Firestore database operations for chats, messages, etc.
-// =============================================================================
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 import '../models/chat_model.dart';
@@ -19,7 +13,6 @@ class FirestoreService {
   // ===========================================================================
   // USER OPERATIONS
   // ===========================================================================
-
   /// Get all registered users (excluding current user)
   Future<List<UserModel>> getAllUsers(String currentUserId) async {
     final querySnapshot =
@@ -68,7 +61,6 @@ class FirestoreService {
   // ===========================================================================
   // CHAT OPERATIONS
   // ===========================================================================
-
   /// Get or create a chat between two users
   Future<ChatModel> getOrCreateChat(String userId1, String userId2) async {
     // Generate deterministic chat ID

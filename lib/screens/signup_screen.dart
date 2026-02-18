@@ -1,9 +1,3 @@
-// =============================================================================
-// YemenChat - Sign Up Screen
-// =============================================================================
-// User registration screen with form validation.
-// =============================================================================
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
@@ -13,7 +7,6 @@ import '../utils/helpers.dart';
 import '../widgets/input_field.dart';
 import '../widgets/custom_button.dart';
 
-/// Sign up screen for new user registration
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 

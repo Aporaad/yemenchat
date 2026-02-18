@@ -20,7 +20,7 @@ class SettingsController extends ChangeNotifier {
   static const String _keyChatWallpaper = 'chat_wallpaper';
 
   // State
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
   bool _notificationsEnabled = true;
   int _sessionDurationMinutes = 30; // Default 30 minutes
   String? _chatWallpaper;

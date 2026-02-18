@@ -1,9 +1,3 @@
-// =============================================================================
-// YemenChat - Welcome Screen
-// =============================================================================
-// Welcome screen with sign in and sign up options.
-// =============================================================================
-
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
@@ -32,25 +26,25 @@ class WelcomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Column(
               children: [
-                const Spacer(flex: 2),
+                const Spacer(flex: 2),// لإضافة مسافة مرنة بين العناصر.
 
                 // Logo and app name
-                _buildHeader(),
+                _buildHeader(),// يعرض رمز التطبيق واسم التطبيق.
 
-                const Spacer(flex: 3),
+                const Spacer(flex: 3),// لإضافة مسافة مرنة بين العناصر.
 
                 // Illustration or features
-                _buildFeatures(),
+                _buildFeatures(),// يعرض مميزات التطبيق.
 
-                const Spacer(flex: 2),
+                const Spacer(flex: 2),// لإضافة مسافة مرنة بين العناصر. 
 
                 // Action buttons
-                _buildButtons(context),
+                _buildButtons(context),// يعرض زر التسجيل والدخول.
 
                 const SizedBox(height: 32),
 
                 // Terms text
-                _buildTermsText(),
+                _buildTermsText(),// يعرض نص الشروط والأحكام.
 
                 const SizedBox(height: 24),
               ],
@@ -112,7 +106,7 @@ class WelcomeScreen extends StatelessWidget {
         ),
       ],
     );
-  }
+  } 
 
   /// Build features list
   Widget _buildFeatures() {

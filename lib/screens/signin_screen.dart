@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../controllers/auth_controller.dart';
 import '../utils/constants.dart';
 import '../utils/validators.dart';
@@ -17,17 +18,21 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   // Form key for validation
-  final _formKey = GlobalKey<FormState>();
+  final _formKey =
+      GlobalKey<FormState>(); // مفتاح فريد للـ Form` للتحقق من صحة المدخلات.
 
   // Text controllers
-  final _emailOrUsernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailOrUsernameController =
+      TextEditingController(); // يحتفظ بقيمة المدخلات في حقل البريد الإلكتروني أو اسم المستخدم.
+  final _passwordController =
+      TextEditingController(); // يحتفظ بقيمة المدخلات في حقل كلمة المرور.
 
   // Remember me checkbox
-  bool _rememberMe = false;
+  bool _rememberMe = false; // يحتفظ بقيمة المدخلات في حقل تذكرني.
 
   @override
   void dispose() {
+    // تحرير متحكمات النصوص لمنع تسرب الذاكرة.
     _emailOrUsernameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -36,33 +41,42 @@ class _SignInScreenState extends State<SignInScreen> {
   /// Handle sign in
   Future<void> _handleSignIn() async {
     // Validate form
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return; // يتحقق من صحة المدخلات اذا كانت غير صحيحة يرجع false  . 
 
-    final authController = context.read<AuthController>();
+    final authController =
+        context.read<AuthController>(); // الحصول على AuthController.
 
     // Attempt sign in
     final success = await authController.signIn(
-      emailOrUsername: _emailOrUsernameController.text.trim(),
-      password: _passwordController.text,
+      emailOrUsername:
+          _emailOrUsernameController.text.trim(), // يتحقق من صحة المدخلات. trim: إزالة المسافات من بداية ونهاية النص
+      password: _passwordController.text, // يتحقق من صحة المدخلات.
     );
 
-    if (!mounted) return;
+    if (!mounted) return; // يتحقق من صحة المدخلات.
 
     if (success) {
       // Navigate to home
-      Helpers.navigateClearAll(context, kRouteHome);
+      Helpers.navigateClearAll(
+        context,
+        kRouteHome,
+      ); // ينتقل إلى الشاشة الرئيسية.
     } else {
       // Show error
       Helpers.showErrorSnackBar(
         context,
-        authController.errorMessage ?? 'Sign in failed',
+        authController.errorMessage ??
+            'Sign in failed', // يتحقق من صحة المدخلات.
       );
     }
   }
 
   /// Handle forgot password
   void _handleForgotPassword() {
-    showDialog(context: context, builder: (context) => _ForgotPasswordDialog());
+    showDialog(
+      context: context,
+      builder: (context) => _ForgotPasswordDialog(),
+    ); // يظهر نافذة حذف كلمة المرور.
   }
 
   @override
@@ -221,6 +235,8 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 }
+
+
 
 /// Forgot password dialog
 class _ForgotPasswordDialog extends StatefulWidget {

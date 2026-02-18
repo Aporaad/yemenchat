@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/services.dart'; //للتحكم في بعض خصائص النظام مثل اتجاه الشاشة ومظهر شريط الحالة.
+import 'package:provider/provider.dart'; //لإدارة حالة التطبيق.
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; //: للتعامل مع الإشعارات الفورية (FCM - Firebase Cloud Messaging).
 
+import 'firebase_options.dart';
 // Controllers
 import 'controllers/auth_controller.dart';
 import 'controllers/chat_controller.dart';
@@ -35,16 +35,20 @@ import 'utils/constants.dart';
 final notificationService = NotificationService();
 
 void main() async {
-  // Ensure Flutter binding is initialized
+  //  تهيئة Flutter  قبل البدء بأي عمل
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase with options
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Set preferred orientations
+
+
+  //  تحديد اتجاه الشاشة
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Set system UI overlay style
+  //  تخصيص مظهر شريط حالة النظام (شريط البطارية والوقت)
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -52,15 +56,14 @@ void main() async {
     ),
   );
 
-  // Initialize Firebase with options
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   // Set up FCM background message handler
+  //  تعيين دالة لمعالجة الإشعارات التي تصل أثناء إغلاق التطبيق
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   // Initialize notification service
-  await notificationService.initialize();
+  // : استدعاء دالة لتهيئة خدمة الإشعارات المحلية والتعامل مع الإشعارات الفورية
 
+  await notificationService.initialize();
   // Run the app
   runApp(const YemenChatApp());
 }
@@ -98,9 +101,8 @@ class YemenChatApp extends StatelessWidget {
             // Theme configuration - Default to Light Mode
             theme: _buildLightTheme(),
             darkTheme: _buildDarkTheme(),
-            themeMode:
-                ThemeMode
-                    .light, // Default to Light Mode settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            //themeMode: ThemeMode.light, // Default to Light Mode settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode: settings.themeMode,
             // Initial route
             initialRoute: kRouteSplash,
 
@@ -455,9 +457,9 @@ class YemenChatApp extends StatelessWidget {
         seedColor: kPrimaryColor,
         brightness: Brightness.dark,
       ),
-      scaffoldBackgroundColor: const Color(0xFF121212),
+      scaffoldBackgroundColor: const Color.fromARGB(255, 74, 61, 61),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF1E1E1E),
+        backgroundColor: Color.fromARGB(255, 90, 74, 74),
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
