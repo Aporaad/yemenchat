@@ -30,6 +30,7 @@ class Validators {
 
   /// Validate password strength
   /// Password must be at least 6 characters
+  /// يتم استدعاه عند تسجيل الدخول وتغيير كلمة المرور
   static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password is required';
@@ -44,6 +45,7 @@ class Validators {
 
   /// Validate strong password
   /// Must contain uppercase, lowercase, number, and be 8+ chars
+  /// يتم استدعاه عند تسجيل حساب جديد وتغيير كلمة المرور
   static String? validateStrongPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password is required';

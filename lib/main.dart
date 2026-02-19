@@ -40,8 +40,6 @@ void main() async {
   // Initialize Firebase with options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-
-
   //  تحديد اتجاه الشاشة
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
