@@ -22,21 +22,21 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
-  final _scrollController = ScrollController();
-  final _focusNode = FocusNode();
-  final _searchController = TextEditingController();
-  final _pdfService = PDFExportService();
+  final _scrollController = ScrollController(); // يتحكم في التمرير (النزول لآخر رسالة)
+  final _focusNode = FocusNode();// يتحكم في تركيز حقل الإدخال (لوحة المفاتيح)
+  final _searchController = TextEditingController();// يتحكم في نص البحث
+  final _pdfService = PDFExportService();// خدمة تصدير PDF
 
   String? _chatId;
   String? _otherUserId;
   UserModel? _otherUser;
   ChatController? _chatController;
 
-  // Search state
-  bool _isSearching = false;
-  String _searchQuery = '';
-  List<MessageModel> _searchResults = [];
-  int _currentSearchIndex = 0;
+  // Search state  حالة البحث في الرسائل
+  bool _isSearching = false;// هل وضع البحث مُفعّل؟
+  String _searchQuery = '';// نص البحث
+  List<MessageModel> _searchResults = [];// نتائج البحث
+  int _currentSearchIndex = 0;// مؤشر البحث الحالي
 
   @override
   void initState() {
@@ -49,7 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Only initialize once
+    // Only initialize once أول مرة فقط
     if (!_isInitialized) {
       _isInitialized = true;
       // Save reference to ChatController before widget is deactivated
@@ -59,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _loadChatData() {
-    final args = ModalRoute.of(context)?.settings.arguments;
+    final args = ModalRoute.of(context)?.settings.arguments;// يقرأ arguments من الشاشة السابقة:
     if (args is Map<String, dynamic>) {
       _chatId = args['chatId'] as String?;
       _otherUserId = args['userId'] as String?;
@@ -76,19 +76,23 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadOtherUser() async {
+    // يجلب بيانات الطرف الآخر (اسم + صورة) من الكاش 
+    // أو من Firebase إذا لم يكن في الكاش
     if (_chatController == null) return;
     _otherUser = await _chatController!.getUser(_otherUserId!);
     if (mounted) setState(() {});
   }
 
   @override
-  void dispose() {
+  void dispose() {//عند الخروج من الشاشة
     _messageController.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     _searchController.dispose();
 
     // Close chat when leaving (silent mode to avoid notifyListeners during dispose)
+    // يغلق المحادثة عند الخروج (وضع صامت لتجنب notifyListeners أثناء التخلص من الـ widget
+    // يوقف الاستماع للرسائل + يمسح القائمة 
     _chatController?.closeChat(silent: true);
     super.dispose();
   }
@@ -107,11 +111,12 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _messageController.text.trim();
     if (text.isEmpty || _chatController == null) return;
 
-    _messageController.clear();
+    _messageController.clear();//يمسح حقل الإدخال فوراً بعد الضغط على إرسال
 
     await _chatController!.sendMessage(text);
 
     // Scroll to bottom after sending
+    // ينتقل لأسفل بعد الإرسال
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 

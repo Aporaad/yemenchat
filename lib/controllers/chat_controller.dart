@@ -187,7 +187,7 @@ class ChatController extends ChangeNotifier {
 
   /// Search chats
   void searchChats(String query) {
-    _searchQuery = query;
+    _searchQuery = query;// يخزّن النص
     notifyListeners();
   }
 

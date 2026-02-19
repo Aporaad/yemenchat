@@ -1,0 +1,46 @@
+عند ارسال رساله لشخص لاول مره يتم تسجيل 
+جدول :chats
+
+isPinned		(map)
+lastMessage "مرحبا"		(string)
+lastTime : Feb 19, 2026 at 3:31:35 (timestamp)
+members :(array) "id1"(string), "id2"(string)
+
+unreadCount(map)id1: 0(number) ,id2: 0(number)
+
+--
+messages :ثم ينتشاء جدول فرعي يخزن الرسائل
+
+String id
+String chatId
+String senderId
+String text
+String? imageUrl
+DateTime time
+MessageStatus status
+
+chats/{chatId}/messages/{messageId}.
+
+=======
+عند ارسال رساله لشخص لاول مره يتم تسجيل 
+جدول :chats
+يتخزن فيه id فريد مدموج بين id الطرفين ويتخزن id الطرفين في  قائمه members 
+ويتم تخزين الرساله في حقل lastMessage وتاريخها في حقل lastTime 
+ويتم اضافه عدد الى خانه الرساله الغير مقرؤه المرتبط ب id المستقبل 
+
+unreadCount(map) تحتوي على قائمه لكل id الطرفين يتم تسجيل فيها عدد الرسائل الغير مقرؤة 
+
+بعدها يتم انشاء جدول فرعي messages لتخزين بيانات هذه الرسالة 
+يتخزن فيه id فريد بالرساله وايضا يتخزن chatId يتم اخذه من جدول chats ويتم تخزين ايضأ senderId 
+ويتخزن محتوى الرسالة في حقل text اذا كان نصا 
+اما اذا كان صورة يتخزن في imageUrl 
+ويتم تسجيل وقت الرسالة في حقل time
+وينم تسجيل حاله الرسالة في حقل  MessageStatus status
+
+
+enum MessageStatus {
+  sending, // Message is being sent
+  sent, // Message sent to server
+  delivered, // Message delivered to recipient's device
+  seen, // Message has been read by recipient
+}
