@@ -47,7 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final chatController = context.read<ChatController>();
 
     if (authController.currentUserId != null) {
-      chatController.initialize(authController.currentUserId!);// يبدأ الاستماع للمحادثات
+      chatController.initialize(
+        authController.currentUserId!,
+      ); // يبدأ الاستماع للمحادثات
     }
   }
 
@@ -68,7 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: kPrimaryColor,
         foregroundColor: Colors.white,
         title: Text(
-          user != null ? 'Hi, ${user.firstName}!' : kAppName,// يعرض اسم المستخدم أو اسم التطبيق
+          user != null
+              ? 'Hi, ${user.firstName}!'
+              : kAppName, // يعرض اسم المستخدم أو اسم التطبيق
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         actions: [
@@ -270,7 +274,8 @@ class _ChatsTab extends StatefulWidget {
 }
 
 class _ChatsTabState extends State<_ChatsTab> {
-  final _searchController = TextEditingController();// يتحكم في حقل البحث (يخزّن النص المكتوب)
+  final _searchController =
+      TextEditingController(); // يتحكم في حقل البحث (يخزّن النص المكتوب)
 
   @override
   void dispose() {
@@ -280,8 +285,10 @@ class _ChatsTabState extends State<_ChatsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final chatController = context.watch<ChatController>(); // يراقب تغييرات المحادثاث
-    final authController = context.watch<AuthController>(); // يراقب تغييرات بيانات المستخدم
+    final chatController =
+        context.watch<ChatController>(); // يراقب تغييرات المحادثاث
+    final authController =
+        context.watch<AuthController>(); // يراقب تغييرات بيانات المستخدم
 
     if (chatController.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -298,10 +305,13 @@ class _ChatsTabState extends State<_ChatsTab> {
             hint: 'Search chats...',
             autofocus: false,
             onChanged: (query) {
-              chatController.searchChats(query);// عند كتابة نص → يُصفّي المحادثات
+              chatController.searchChats(
+                query,
+              ); // عند كتابة نص → يُصفّي المحادثات
             },
             onClear: () {
-              chatController.clearSearch(); // عند الضغط على × او مسح النص →  يرجع كل المحادثات
+              chatController
+                  .clearSearch(); // عند الضغط على × او مسح النص →  يرجع كل المحادثات
             },
           ),
         ),
@@ -341,41 +351,65 @@ class _ChatsTabState extends State<_ChatsTab> {
     );
   }
 
-//بناء قائمة المحادثات لكل محادثة في القائمة:
+  //بناء قائمة المحادثات لكل محادثة في القائمة:
   Widget _buildChatsList(
     List<ChatModel> chats, // قائمة كل المحادثات
     AuthController authController,
     ChatController chatController,
   ) {
-    return ListView.separated(
-      itemCount: chats.length,
-      separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
-      itemBuilder: (context, index) {
-        final chat = chats[index];//  يجلب نموذج المحادثة
-        // chat members = ['أنا', 'الطرف الآخر'] 
-        final currentUserId = authController.currentUserId ?? '';//  يجلب ID المستخدم الحالي انا
-        final otherUserId = chat.getOtherUserId(currentUserId);// ② يجلب ID  الطرف الآخر
+    return RefreshIndicator(
+      onRefresh: chatController.updateChats,
+      child: ListView.separated(
+        itemCount: chats.length,
+        separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
+        itemBuilder: (context, index) {
+          final chat = chats[index]; //  يجلب نموذج المحادثة
+          // chat members = ['أنا', 'الطرف الآخر']
+          final currentUserId =
+              authController.currentUserId ??
+              ''; //  يجلب ID المستخدم الحالي انا
+          final otherUserId = chat.getOtherUserId(
+            currentUserId,
+          ); // ② يجلب ID  الطرف الآخر
 
-        // ④ يبحث في الكاش (الذاكرة المؤقتة) عن بيانات الطرف الآخر
-        final otherUser = chatController.getCachedUser(otherUserId);
-        //ثم يتحقق: هل بيانات المستخدم موجودة في الكاش؟
-        if (otherUser == null) {
+          // ④ يبحث في الكاش (الذاكرة المؤقتة) عن بيانات الطرف الآخر
+          final otherUser = chatController.getCachedUser(otherUserId);
+          //ثم يتحقق: هل بيانات المستخدم موجودة في الكاش؟
+          if (otherUser == null) {
             //  إذا لم يكن موجودًا في الكاش → اذهب للـ Firestore وأحضره
-          chatController.getUser(otherUserId);// ويُخزّنه في الكاش للمرة القادمة
-          return const SizedBox.shrink();// يعرض مساحة فارغة مؤقتاً
-        }
+            chatController.getUser(
+              otherUserId,
+            ); // ويُخزّنه في الكاش للمرة القادمة
+            return const SizedBox.shrink(); // يعرض مساحة فارغة مؤقتاً
+          }
 
-        return UserCard(
-          user: otherUser,// بيانات الشخص (الاسم + الصورة)
-          subtitle: chat.lastMessage,// آخر رسالة
-          trailingText: Helpers.formatChatDate(chat.lastTime),// الوقت
-          badgeCount: chat.getUnreadCount(currentUserId), // ↑ عدد الرسائل غير المقروءة (الدائرة الخضراء بالرقم)
-          isPinned: chat.isPinnedForUser(currentUserId),// هل المحادثة مثبتة؟
-          onTap: () => _openChat(context, chat.id, otherUserId), // ↑ عند الضغط على المحادثة → فتح شاشة المحادثة
-          onAvatarTap: () => _openContactInfo(context, otherUserId), // ↑ عند الضغط على الصورة → فتح معلومات الشخص
-          onLongPress: () => _showChatOptions(context, chat), // ↑ عند الضغط المطول → خيارات (تثبيت/حذف)
-        );
-      },
+          return UserCard(
+            user: otherUser, // بيانات الشخص (الاسم + الصورة)
+            subtitle: chat.lastMessage, // آخر رسالة
+            trailingText: Helpers.formatChatDate(chat.lastTime), // الوقت
+            badgeCount: chat.getUnreadCount(
+              currentUserId,
+            ), // ↑ عدد الرسائل غير المقروءة (الدائرة الخضراء بالرقم)
+            isPinned: chat.isPinnedForUser(currentUserId), // هل المحادثة مثبتة؟
+            onTap:
+                () => _openChat(
+                  context,
+                  chat.id,
+                  otherUserId,
+                ), // ↑ عند الضغط على المحادثة → فتح شاشة المحادثة
+            onAvatarTap:
+                () => _openContactInfo(
+                  context,
+                  otherUserId,
+                ), // ↑ عند الضغط على الصورة → فتح معلومات الشخص
+            onLongPress:
+                () => _showChatOptions(
+                  context,
+                  chat,
+                ), // ↑ عند الضغط المطول → خيارات (تثبيت/حذف)
+          );
+        },
+      ),
     );
   }
 
@@ -388,12 +422,9 @@ class _ChatsTabState extends State<_ChatsTab> {
     );
   }
 
-
-
   void _openContactInfo(BuildContext context, String userId) {
     Navigator.pushNamed(context, kRouteContactInfo, arguments: userId);
   }
-
 
   void _showChatOptions(BuildContext context, ChatModel chat) {
     final chatController = context.read<ChatController>();

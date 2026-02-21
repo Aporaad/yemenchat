@@ -69,7 +69,7 @@ class _ContactScreenState extends State<ContactScreen> {
                         ? TextField(
                           controller: _searchController,
                           autofocus: true,
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
                             hintText: 'Search contacts...',
                             hintStyle: TextStyle(color: Colors.white70),
@@ -135,7 +135,7 @@ class _ContactScreenState extends State<ContactScreen> {
         ),
       );
     }
-
+// RefreshIndicator : يتم استخدامه لتحديث القائمة عند السحب لأسفل
     return RefreshIndicator(
       onRefresh: controller.refreshContacts,
       child: ListView.separated(

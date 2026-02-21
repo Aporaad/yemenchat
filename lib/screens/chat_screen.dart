@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+
 import '../controllers/auth_controller.dart';
 import '../controllers/chat_controller.dart';
 import '../models/user_model.dart';
@@ -22,10 +23,11 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
-  final _scrollController = ScrollController(); // يتحكم في التمرير (النزول لآخر رسالة)
-  final _focusNode = FocusNode();// يتحكم في تركيز حقل الإدخال (لوحة المفاتيح)
-  final _searchController = TextEditingController();// يتحكم في نص البحث
-  final _pdfService = PDFExportService();// خدمة تصدير PDF
+  final _scrollController =
+      ScrollController(); // يتحكم في التمرير (النزول لآخر رسالة)
+  final _focusNode = FocusNode(); // يتحكم في تركيز حقل الإدخال (لوحة المفاتيح)
+  final _searchController = TextEditingController(); // يتحكم في نص البحث
+  final _pdfService = PDFExportService(); // خدمة تصدير PDF
 
   String? _chatId;
   String? _otherUserId;
@@ -33,58 +35,70 @@ class _ChatScreenState extends State<ChatScreen> {
   ChatController? _chatController;
 
   // Search state  حالة البحث في الرسائل
-  bool _isSearching = false;// هل وضع البحث مُفعّل؟
-  String _searchQuery = '';// نص البحث
-  List<MessageModel> _searchResults = [];// نتائج البحث
-  int _currentSearchIndex = 0;// مؤشر البحث الحالي
+  bool _isSearching = false; // هل وضع البحث مُفعّل؟
+  String _searchQuery = ''; // نص البحث
+  List<MessageModel> _searchResults = []; // نتائج البحث
+  int _currentSearchIndex = 0; // مؤشر البحث الحالي
 
   @override
   void initState() {
     super.initState();
   }
 
-  bool _isInitialized = false;
+  bool _isInitialized = false; // للتحقق من أن الشاشة تم تهيئتها مرة واحدة فقط
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Only initialize once أول مرة فقط
+    //  Only initialize once أول مرة فقط
+    // لم نستخدم initState
+    // لأن ModalRoute.of(context) كامل البناء، وهذا غير متاح في initState
+    // . أما didChangeDependencies() يتم استدعاؤها بعد أن يصبح الـ context متاحًا
     if (!_isInitialized) {
       _isInitialized = true;
       // Save reference to ChatController before widget is deactivated
+      // حفظ مرجع إلى ChatController قبل إلغاء تفعيل الـ widget
       _chatController = context.read<ChatController>();
+      // تحميل بيانات المحادثة  
       _loadChatData();
     }
   }
 
   void _loadChatData() {
-    final args = ModalRoute.of(context)?.settings.arguments;// يقرأ arguments من الشاشة السابقة:
+    final args =
+        ModalRoute.of(
+          context,
+        )?.settings.arguments; // يقرأ arguments من الشاشة السابقة:
     if (args is Map<String, dynamic>) {
       _chatId = args['chatId'] as String?;
       _otherUserId = args['userId'] as String?;
 
       if (_chatId != null && _chatController != null) {
         // Open the chat to load messages
+        // يفتح المحادثة لتحميل الرسائل ويعيد تعيين عدد الرسائل غير المقروءة
         _chatController!.openChatById(_chatId!);
       }
 
       if (_otherUserId != null) {
+        // تحميل بيانات الطرف الآخر (اسم + صورة)
         _loadOtherUser();
       }
     }
   }
 
   Future<void> _loadOtherUser() async {
-    // يجلب بيانات الطرف الآخر (اسم + صورة) من الكاش 
+    // يجلب بيانات الطرف الآخر (اسم + صورة) من الكاش
     // أو من Firebase إذا لم يكن في الكاش
     if (_chatController == null) return;
     _otherUser = await _chatController!.getUser(_otherUserId!);
+    //  إذا كان الـ widget لا يزال موجودًا، قم بتحديث الواجهة
     if (mounted) setState(() {});
   }
 
   @override
-  void dispose() {//عند الخروج من الشاشة
+  void dispose() {
+    //عند الخروج من الشاشة
     _messageController.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
@@ -92,11 +106,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Close chat when leaving (silent mode to avoid notifyListeners during dispose)
     // يغلق المحادثة عند الخروج (وضع صامت لتجنب notifyListeners أثناء التخلص من الـ widget
-    // يوقف الاستماع للرسائل + يمسح القائمة 
+    // يوقف الاستماع للرسائل + يمسح القائمة
     _chatController?.closeChat(silent: true);
     super.dispose();
   }
 
+  //  دالة التمرير التلقائي لأسفل
+  //  تُستخدم للتمرير لأسفل عند إرسال رسالة جديدة أو عند فتح المحادثة
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -111,7 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _messageController.text.trim();
     if (text.isEmpty || _chatController == null) return;
 
-    _messageController.clear();//يمسح حقل الإدخال فوراً بعد الضغط على إرسال
+    _messageController.clear(); //يمسح حقل الإدخال فوراً بعد الضغط على إرسال
 
     await _chatController!.sendMessage(text);
 
@@ -120,7 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
-  /// Show image picker dialog
+  //  دالة عرض نافذة اختيار الصورة
   void _showImagePickerDialog() {
     showModalBottomSheet(
       context: context,
@@ -159,7 +175,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  /// Send image from gallery
+  //  دالة إرسال الصورة من المعرض
   Future<void> _sendImageFromGallery() async {
     if (_chatController == null) return;
 
@@ -177,7 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  /// Send image from camera
+  //  دالة إرسال الصورة من الكاميرا
   Future<void> _sendImageFromCamera() async {
     if (_chatController == null) return;
 
@@ -203,6 +219,8 @@ class _ChatScreenState extends State<ChatScreen> {
     final currentUserId = authController.currentUserId ?? '';
 
     // Auto-scroll when new messages arrive
+    // التمرير التلقائي لأسفل عند وصول رسائل جديدة
+    //  يتم استدعاؤها بعد بناء الـ widget
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (messages.isNotEmpty) _scrollToBottom();
     });
@@ -270,6 +288,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         final time = Helpers.formatTime(message.time);
 
                         // Show ImageMessage widget for image messages
+                        //  يتم عرض رسائل الصور باستخدام ImageMessage
                         if (message.isImageMessage) {
                           return ImageMessage(
                             imageUrl: message.imageUrl!,
@@ -280,6 +299,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         }
 
                         // Show ChatBubble for text messages
+                        //  يتم عرض رسائل النص باستخدام ChatBubble
                         return ChatBubble(
                           message: message,
                           isSent: isSent,
@@ -383,7 +403,11 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  /// Toggle search mode
+
+
+//======================================================
+  /// Toggle search 
+  /// دالة تبديل وضع البحث
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
@@ -396,6 +420,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   /// Build search bar
+  ///  يتم بناء شريط البحث
   Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -502,6 +527,10 @@ class _ChatScreenState extends State<ChatScreen> {
     // TODO: Scroll to message
   }
 
+
+//==============================================================
+  /// Handle menu actions
+  ///  يتم التعامل مع الإجراءات التي يتم اختيارها من القائمة
   void _handleMenuAction(String action) {
     switch (action) {
       case 'export_pdf':
@@ -513,7 +542,27 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+ /// Clear chat
+///  يتم مسح المحادثة
+  Future<void> _clearChat() async {
+    final confirmed = await Helpers.showConfirmDialog(
+      context,
+      title: 'Clear Chat',
+      message: 'Are you sure you want to delete all messages?',
+      confirmText: 'Clear',
+      isDangerous: true,
+    );
+
+    if (confirmed && _chatId != null) {
+      await context.read<ChatController>().deleteChat(_chatId!);
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+
+//============================================================
   /// Show PDF export options dialog
+  ///  يتم عرض خيارات تصدير المحادثة إلى PDF
   void _showExportPDFDialog() {
     showModalBottomSheet(
       context: context,
@@ -648,21 +697,11 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<void> _clearChat() async {
-    final confirmed = await Helpers.showConfirmDialog(
-      context,
-      title: 'Clear Chat',
-      message: 'Are you sure you want to delete all messages?',
-      confirmText: 'Clear',
-      isDangerous: true,
-    );
 
-    if (confirmed && _chatId != null) {
-      await context.read<ChatController>().deleteChat(_chatId!);
-      if (mounted) Navigator.pop(context);
-    }
-  }
 
+//============================================================
+ /// Show message options
+ ///  يتم عرض خيارات الرسالة
   void _showMessageOptions(String messageId) {
     showModalBottomSheet(
       context: context,

@@ -1,9 +1,3 @@
-// =============================================================================
-// YemenChat - Favorites Screen
-// =============================================================================
-// Screen showing favorite contacts.
-// =============================================================================
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';

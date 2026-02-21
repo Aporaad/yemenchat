@@ -7,6 +7,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+
 import '../models/chat_model.dart';
 import '../models/message_model.dart';
 import '../models/user_model.dart';
@@ -24,24 +25,28 @@ class ChatController extends ChangeNotifier {
       StorageService(); // For image picking only
 
   // State
-  List<ChatModel> _chats = [];
-  List<MessageModel> _currentMessages = [];
-  Map<String, UserModel> _userCache = {};
-  String? _currentChatId;
-  bool _isLoading = false;
-  bool _isSending = false;
-  String? _errorMessage;
-  String _searchQuery = '';
+  List<ChatModel> _chats = []; // ① كل محادثات المستخدم
+  List<MessageModel> _currentMessages = []; // ② رسائل المحادثة المفتوحة حالياً
+  Map<String, UserModel> _userCache = {}; // ③ بيانات المستخدمين المخزنة
+  String? _currentChatId; // ④ ID المحادثة المفتوحة حالياً
+  bool _isLoading = false; // ⑤ حالة التحميل
+  bool _isSending = false; // ⑥ حالة الارسال
+  String? _errorMessage; // ⑦ رسالة الخطأ
+  String _searchQuery = ''; // ⑧ نص البحث
 
-  // Stream subscriptions
-  StreamSubscription? _chatsSubscription;
-  StreamSubscription? _messagesSubscription;
+  // Stream :  قناة بيانات مستمرة من Firebase.
+  // بدلاً من أن تسأل "هل في رسائل جديدة؟" كل ثانية، Firebase يُرسل لك البيانات تلقائياً عند أي تغيير.
+  StreamSubscription?
+  _chatsSubscription; // ⑨ اشتراك Stream للمحادثات  // → يحدّث _chats
+  StreamSubscription?
+  _messagesSubscription; // ⑩ اشتراك Stream للرسائل  // → يحدّث _currentMessages
 
   // ===========================================================================
   // GETTERS
   // ===========================================================================
 
   /// All chats (filtered by search if applicable)
+  /// uses in _ChatsTaps()
   List<ChatModel> get chats {
     if (_searchQuery.isEmpty) return _chats;
 
@@ -58,41 +63,49 @@ class ChatController extends ChangeNotifier {
   }
 
   /// Pinned chats
+  /// uses in _ChatsTaps()
   List<ChatModel> get pinnedChats {
     if (_currentUserId == null) return [];
     return _chats.where((c) => c.isPinnedForUser(_currentUserId!)).toList();
   }
 
   /// Regular (non-pinned) chats
+  /// uses in _ChatsTaps()
   List<ChatModel> get regularChats {
     if (_currentUserId == null) return _chats;
     return _chats.where((c) => !c.isPinnedForUser(_currentUserId!)).toList();
   }
 
   /// Current chat messages
+  /// uses in _ChatScreen()
   List<MessageModel> get messages => _currentMessages;
 
   /// Current chat ID
+  /// uses in _ChatScreen()
   String? get currentChatId => _currentChatId;
 
   /// Check if loading
+  /// uses in _ChatScreen()
   bool get isLoading => _isLoading;
 
   /// Check if sending message
+  /// uses in _ChatScreen()
   bool get isSending => _isSending;
 
   /// Get error message
+  /// uses in _ChatScreen()
   String? get errorMessage => _errorMessage;
 
   /// Current user ID (set before using controller)
+  /// uses in _ChatScreen()
   String? _currentUserId;
   String? get currentUserId => _currentUserId;
 
   // ===========================================================================
   // INITIALIZATION
   // ===========================================================================
-
   /// Set current user ID and start listening to chats
+  /// uses in _ChatScreen()
   void initialize(String userId) {
     // Prevent duplicate initialization
     if (_currentUserId == userId) return;
@@ -101,13 +114,21 @@ class ChatController extends ChangeNotifier {
     _listenToChats();
   }
 
-  /// Listen to user's chats
+  /// Listen to user's
+  /// تجعل المحادثات تتحدث تلقائياً بدون أي تدخل
+  /// uses in _ChatScreen()
+  ///  "ابقَ مستمعاً لـ Firebase،
+  ///  وكل ما تتغير المحادثات: حدّث القائمة، خزّن بيانات المستخدمين، وإذا وصلت رسالة جديدة أرسل إشعاراً."
   void _listenToChats() {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null) return; // إذا ما في مستخدم مسجل → لا تعمل شيء
 
-    _chatsSubscription?.cancel();
+    // ← ألغي أي استماع قديم (لو موجود)
+    _chatsSubscription
+        ?.cancel(); //تعني الغاء الاشتراك السابق لضمان عدم تكرار البيانات اثناء التنقل بين المحادثات
 
     // Track previous unread counts to detect new messages
+    // تتبع عدد الرسائل غير المقروءة السابقة للكشف عن الرسائل الجديدة
+    //ثم يحفظ عدد الرسائل غير المقروءة قبل التحديث:
     Map<String, int> previousUnreadCounts = {};
     for (final chat in _chats) {
       previousUnreadCounts[chat.id] = chat.getUnreadCount(_currentUserId!);
@@ -116,9 +137,11 @@ class ChatController extends ChangeNotifier {
     _chatsSubscription = _firestoreService
         .streamUserChats(_currentUserId!)
         .listen((chatList) async {
-          _chats = chatList;
+          // ← "كل ما وصل رسالة جديد، الـ Stream يرسل لك القائمة المحدثة هنا"
+          _chats = chatList; // ← يحدّث قائمة المحادثات
 
           // Check for new unread messages and show notifications
+          // يتحقق من وجود رسائل جديدة ويعرض الإشعارات
           for (final chat in chatList) {
             final currentUnread = chat.getUnreadCount(_currentUserId!);
             final previousUnread = previousUnreadCounts[chat.id] ?? 0;
@@ -161,11 +184,13 @@ class ChatController extends ChangeNotifier {
             }
           }
 
-          notifyListeners();
+          notifyListeners(); // ← "يا شاشات! البيانات تغيّرت، أعيدوا بناء أنفسكم"
         });
   }
 
   /// Get cached user or fetch from Firestore
+  ///  "إما أن تأخذ المستخدم من الذاكرة (لو موجود)،
+  ///  أو تطلبه من Firestore وتخزّنه عندك."
   Future<UserModel?> getUser(String userId) async {
     if (_userCache.containsKey(userId)) {
       return _userCache[userId];
@@ -179,6 +204,7 @@ class ChatController extends ChangeNotifier {
   }
 
   /// Get user from cache (synchronous)
+  ///  "لو موجود في الذاكرة → أعطيه فوراً، بدون ما تروح للشبكة."
   UserModel? getCachedUser(String userId) => _userCache[userId];
 
   // ===========================================================================
@@ -186,18 +212,22 @@ class ChatController extends ChangeNotifier {
   // ===========================================================================
 
   /// Search chats
+  ///  "يخزّن النص"
   void searchChats(String query) {
-    _searchQuery = query;// يخزّن النص
+    _searchQuery = query; // يخزّن النص
     notifyListeners();
   }
 
   /// Clear search
+  ///  "يمسح البحث"
   void clearSearch() {
     _searchQuery = '';
     notifyListeners();
   }
 
   /// Start or open a chat with a user
+  ///  "يفتح محادثة جديدة أو يستأنف محادثة موجودة" ي
+  /// يستخدم في شاشة جهات الاتصال او المفضلة لفتح محادثة جديدة عند الضغط على زر "محادثة جديدة"
   Future<ChatModel?> openChat(
     String otherUserId, {
     String? currentUserId,
@@ -233,19 +263,27 @@ class ChatController extends ChangeNotifier {
   }
 
   /// Open an existing chat by ID (used when navigating to chat screen)
+  /// يفتح محادثة موجودة بالمعرف (يُستخدم في شاشة الرسائل  عند الانتقال من شاشة المحادثات  إلى شاشة الرسائل)
   void openChatById(String chatId) {
     _currentChatId = chatId;
+    // يبدأ بالاستماع إلى الرسائل في المحادثة المحددة
     _listenToMessages(chatId);
 
     // Reset unread count if we have current user
+    // يصفر عدد الرسائل غير المقروءة إذا كان لدينا مستخدم حالي
     if (_currentUserId != null) {
       _firestoreService.resetUnreadCount(chatId, _currentUserId!);
     }
   }
 
+  /*الفرق بين 
+openChat: يُستخدم من جهات الاتصال (قد تحتاج إنشاء محادثة جديدة)
+openChatById: يُستخدم من قائمة المحادثات (المحادثة موجودة مسبقاً) */
+
   /// Close current chat
   ///
   /// [silent] - if true, won't call notifyListeners (used during dispose)
+  /// يستخدم عند الخروج من شاشة الرسائل لالغاء الاشتراك في الرسائل
   void closeChat({bool silent = false}) {
     _messagesSubscription?.cancel();
     _currentChatId = null;
@@ -283,6 +321,8 @@ class ChatController extends ChangeNotifier {
   // ===========================================================================
 
   /// Listen to messages in current chat
+  /// تستخدم عند فتح شاشة الدردشة وتقوم بتحميل الرسائل وبدء الاستماع
+  /// تغيير حاله الرسائل غير المقرؤة
   void _listenToMessages(String chatId) {
     _messagesSubscription?.cancel();
 
@@ -295,16 +335,18 @@ class ChatController extends ChangeNotifier {
       // Check if there are new messages
       final hasNewMessages = messageList.length > previousMessageCount;
 
-      // If there's a new message and it's not from current user, show notification
+      // If there's a new message and it's not from current user, show
+      //  يتم عرض إشعار إذا كان هناك رسالة جديدة وليست من المستخدم الحالي
       if (hasNewMessages && messageList.isNotEmpty) {
+        //  يتم الحصول على أحدث رسالة
         final latestMessage = messageList.first;
 
-        // Only notify if message is from other user
+        //  يتم عرض الإشعار فقط إذا كانت الرسالة من مستخدم آخر
         if (latestMessage.senderId != _currentUserId) {
-          // Get sender info for notification
+          //  يتم الحصول على معلومات المرسل للإشعار
           final sender = _userCache[latestMessage.senderId];
           if (sender != null) {
-            // Show local notification
+            //  يتم عرض الإشعار المحلي
             notificationService.showNotification(
               title: sender.fullName,
               body: latestMessage.text,
@@ -432,6 +474,11 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateChats() async {
+    _chats = _chats;
+    notifyListeners();
+  }
+
   /// Get total unread count across all chats
   int get totalUnreadCount {
     if (_currentUserId == null) return 0;
@@ -441,6 +488,8 @@ class ChatController extends ChangeNotifier {
     );
   }
 
+  /*بدون هذا التنظيف، ستبقى الـ Streams
+ تعمل في الخلفية وتستهلك موارد الجهاز والإنترنت حتى بعد إغلاق التطبيق. */
   @override
   void dispose() {
     _chatsSubscription?.cancel();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../mixins/screen_protection_mixin.dart';
 
 import '../controllers/auth_controller.dart';
 import '../utils/constants.dart';
@@ -16,7 +17,14 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends State<SignInScreen>
+    with ScreenProtectionMixin {
+  @override
+  void initState() {
+    super.initState();
+    enableProtection(); // منع لقطات الشاشة وتسجيل الشاشة
+  }
+
   // Form key for validation
   final _formKey =
       GlobalKey<FormState>(); // مفتاح فريد للـ Form` للتحقق من صحة المدخلات.
@@ -32,6 +40,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void dispose() {
+    disableProtection(); // إلغاء منع لقطات الشاشة عند مغادرة الشاشة
     // تحرير متحكمات النصوص لمنع تسرب الذاكرة.
     _emailOrUsernameController.dispose();
     _passwordController.dispose();
@@ -41,7 +50,8 @@ class _SignInScreenState extends State<SignInScreen> {
   /// Handle sign in
   Future<void> _handleSignIn() async {
     // Validate form
-    if (!_formKey.currentState!.validate()) return; // يتحقق من صحة المدخلات اذا كانت غير صحيحة يرجع false  . 
+    if (!_formKey.currentState!.validate())
+      return; // يتحقق من صحة المدخلات اذا كانت غير صحيحة يرجع false  .
 
     final authController =
         context.read<AuthController>(); // الحصول على AuthController.
@@ -49,7 +59,8 @@ class _SignInScreenState extends State<SignInScreen> {
     // Attempt sign in
     final success = await authController.signIn(
       emailOrUsername:
-          _emailOrUsernameController.text.trim(), // يتحقق من صحة المدخلات. trim: إزالة المسافات من بداية ونهاية النص
+          _emailOrUsernameController.text
+              .trim(), // يتحقق من صحة المدخلات. trim: إزالة المسافات من بداية ونهاية النص
       password: _passwordController.text, // يتحقق من صحة المدخلات.
     );
 
@@ -235,8 +246,6 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 }
-
-
 
 /// Forgot password dialog
 class _ForgotPasswordDialog extends StatefulWidget {

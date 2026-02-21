@@ -252,6 +252,7 @@ class ContactController extends ChangeNotifier {
   }
 
   /// Get a specific user by ID
+  /// تستخدم في شاشة الدردشة لعرض معلومات المستخدم
   Future<UserModel?> getUserById(String userId) async {
     // Check local cache first
     final local = _contacts.where((u) => u.id == userId).firstOrNull;

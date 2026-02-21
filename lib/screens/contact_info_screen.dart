@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../mixins/screen_protection_mixin.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/chat_controller.dart';
@@ -23,10 +24,23 @@ class ContactInfoScreen extends StatefulWidget {
   State<ContactInfoScreen> createState() => _ContactInfoScreenState();
 }
 
-class _ContactInfoScreenState extends State<ContactInfoScreen> {
+class _ContactInfoScreenState extends State<ContactInfoScreen>
+    with ScreenProtectionMixin {
   final FirestoreService _firestoreService = FirestoreService();
   UserModel? _user;
   bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    enableProtection(); // منع لقطات الشاشة وتسجيل الشاشة
+  }
+
+  @override
+  void dispose() {
+    disableProtection(); // إلغاء منع لقطات الشاشة عند مغادرة الشاشة
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {

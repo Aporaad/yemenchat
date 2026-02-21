@@ -20,6 +20,11 @@ dependencies:
 
   # State Management
   provider: ^6.1.2
+  
+  screen_protector:
+  secure_application:
+  jailbreak_root_detection:
+  device_info_plus:
 
   # Image Handling
   image_picker: ^1.1.2

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../mixins/screen_protection_mixin.dart';
 import '../controllers/auth_controller.dart';
 import '../utils/constants.dart';
 import '../utils/validators.dart';
@@ -14,7 +15,8 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends State<SignUpScreen>
+    with ScreenProtectionMixin {
   // Form key for validation
   final _formKey = GlobalKey<FormState>();
 
@@ -27,7 +29,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _confirmPasswordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    enableProtection(); // منع لقطات الشاشة وتسجيل الشاشة
+  }
+
+  @override
   void dispose() {
+    disableProtection(); // إلغاء منع لقطات الشاشة عند مغادرة الشاشة
     _fullNameController.dispose();
     _usernameController.dispose();
     _phoneController.dispose();

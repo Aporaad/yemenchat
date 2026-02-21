@@ -229,6 +229,7 @@ class MessageInputField extends StatelessWidget {
           ),
         ],
       ),
+      //  يتم استخدام SafeArea لتجنب التداخل مع شريط التنقل
       child: SafeArea(
         child: Row(
           children: [
@@ -244,7 +245,10 @@ class MessageInputField extends StatelessWidget {
             // Text input
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  //vertical: 18,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(24),
@@ -258,7 +262,10 @@ class MessageInputField extends StatelessWidget {
                   decoration: const InputDecoration(
                     hintText: 'Type a message...',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 15,
+                    ),
                   ),
                   onSubmitted: (_) => onSend?.call(),
                 ),

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart'; //للتحكم في بعض خصائص ا
 import 'package:provider/provider.dart'; //لإدارة حالة التطبيق.
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart'; //: للتعامل مع الإشعارات الفورية (FCM - Firebase Cloud Messaging).
+import 'package:secure_application/secure_application.dart';
+import 'package:screen_protector/screen_protector.dart';
 
 import 'firebase_options.dart';
 // Controllers
@@ -14,6 +16,7 @@ import 'controllers/settings_controller.dart';
 
 // Services
 import 'services/notification_service.dart';
+import 'services/security_service.dart';
 
 // Screens
 import 'screens/splash_screen.dart';
@@ -60,54 +63,160 @@ void main() async {
 
   // Initialize notification service
   // : استدعاء دالة لتهيئة خدمة الإشعارات المحلية والتعامل مع الإشعارات الفورية
-
   await notificationService.initialize();
+
+  // ==================== Security Checks ====================
+  // فحص الأمان: Root/Jailbreak + Emulator + Debug Mode
+  // في وضع Debug يتم تخطي الفحوصات للسماح بالتطوير
+  final securityResult = await SecurityService.runSecurityChecks();
+
+  // إخفاء الشاشة عند الخروج للخلفية (حماية المحتوى في recent apps)
+  // ملاحظة: screen_protector يعمل فقط على Android/iOS — على Web يتم تخطيه
+  try {
+    await ScreenProtector.protectDataLeakageWithBlur();
+  } catch (e) {
+    debugPrint('ScreenProtector not supported on this platform: $e');
+  }
+
   // Run the app
-  runApp(const YemenChatApp());
+  runApp(YemenChatApp(securityResult: securityResult));
 }
 
 /// Main application widget
 class YemenChatApp extends StatelessWidget {
-  const YemenChatApp({super.key});
+  final SecurityCheckResult securityResult;
+
+  const YemenChatApp({super.key, required this.securityResult});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        // Auth controller - manages user authentication state
-        ChangeNotifierProvider(create: (_) => AuthController()),
+    // ==================== Security Violation Screen ====================
+    // إذا تم اكتشاف انتهاك أمني، يعرض شاشة حمراء ويمنع التشغيل
+    if (!securityResult.isSafe) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: Colors.black,
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.security, color: Colors.red, size: 80),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Security Violation Detected!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    securityResult.violationType ?? 'Unknown Violation',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'App will not run.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
-        // Settings controller - manages app settings
-        ChangeNotifierProvider(create: (_) => SettingsController()),
+    // ==================== Normal App ====================
+    // التطبيق آمن → يعمل بشكل طبيعي مع SecureApplication لإخفاء المحتوى عند الخروج للخلفية
+    return SecureApplication(
+      nativeRemoveDelay: 800,
+      onNeedUnlock: (secureApplicationController) async {
+        // إعادة فتح التطبيق بدون قفل إضافي
+        secureApplicationController?.unlock();
+        return SecureApplicationAuthenticationStatus.SUCCESS;
+      },
+      child: MultiProvider(
+        providers: [
+          // Auth controller - manages user authentication state
+          ChangeNotifierProvider(create: (_) => AuthController()),
 
-        // Chat controller - manages chats and messages
-        ChangeNotifierProvider(create: (_) => ChatController()),
+          // Settings controller - manages app settings
+          ChangeNotifierProvider(create: (_) => SettingsController()),
 
-        // Contact controller - manages contacts and favorites
-        ChangeNotifierProvider(create: (_) => ContactController()),
+          // Chat controller - manages chats and messages
+          ChangeNotifierProvider(create: (_) => ChatController()),
 
-        // Profile controller - manages user profile
-        ChangeNotifierProvider(create: (_) => ProfileController()),
-      ],
-      child: Consumer<SettingsController>(
-        builder: (context, settings, _) {
-          return MaterialApp(
-            // App info
-            title: kAppName,
-            debugShowCheckedModeBanner: false,
+          // Contact controller - manages contacts and favorites
+          ChangeNotifierProvider(create: (_) => ContactController()),
 
-            // Theme configuration - Default to Light Mode
-            theme: _buildLightTheme(),
-            darkTheme: _buildDarkTheme(),
-            //themeMode: ThemeMode.light, // Default to Light Mode settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            themeMode: settings.themeMode,
-            // Initial route
-            initialRoute: kRouteSplash,
+          // Profile controller - manages user profile
+          ChangeNotifierProvider(create: (_) => ProfileController()),
+        ],
+        child: Consumer<SettingsController>(
+          builder: (context, settings, _) {
+            return MaterialApp(
+              // App info
+              title: kAppName,
+              debugShowCheckedModeBanner: false,
 
-            // Route generation
-            onGenerateRoute: _generateRoute,
-          );
-        },
+              // Theme configuration - Default to Light Mode
+              theme: _buildLightTheme(),
+              darkTheme: _buildDarkTheme(),
+              themeMode: settings.themeMode,
+
+              // Initial route
+              initialRoute: kRouteSplash,
+
+              // Route generation
+              onGenerateRoute: _generateRoute,
+
+              // SecureGate يجب أن يكون داخل MaterialApp لأنه يحتاج Directionality
+              builder: (context, child) {
+                return SecureGate(
+                  blurr: 20,
+                  opacity: 0.6,
+                  lockedBuilder: (context, secureNotifier) {
+                    return const Scaffold(
+                      backgroundColor: Colors.black,
+                      body: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.lock_outline,
+                              color: Colors.white54,
+                              size: 64,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Screen Hidden for Security',
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  child: child ?? const SizedBox.shrink(),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
